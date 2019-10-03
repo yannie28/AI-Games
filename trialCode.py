@@ -26,35 +26,60 @@ graph1 = {
     'A' : ['B','C'],
     'B' : ['D','E'],
     'C' : ['F','G'],
-    'D' : [],
-    'E' : [],
-    'F' : [],
-    'G' : [],
+    'D' : ['H', 'I', 'J'],
+    'E' : ['K'],
+    'F' : ['L', 'M'],
+    'G' : ['N'],
+    'H' : [],
+    'I' : [],
+    'J' : [],
+    'K' : [],
+    'L' : [],
+    'M' : [],
+    'N' : [],
 }
+# MAX = True
+# MIN = False #not MAX
+COMPUTER = 'X' #1-max
+HUMAN = 'O' #0
+
 
 def evalFunction(node):
-    if node == 'D':
-        return 10
-    elif node == 'E':
-        return 20
-    elif node == 'F':
-        return 30
+    if node == 'H':
+        return 70
+    elif node == 'I':
+        return 120
+    elif node == 'J':
+        return 130
+    elif node == 'K':
+        return 80
+    elif node == 'L':
+        return 100
     else:
-        return 40
+        return 180
 
-def dfs(graph, node, visited):
+def dfs(graph, node, player):
     max = float('-inf')
+    min = float('inf')
+    index = ''
     if not graph1[node]:
         return evalFunction(node)
 
-    visited.append(node)
     for n in graph[node]:
-        value = dfs(graph,n, visited)
+        value = dfs(graph,n, not player)
     
-    if value > max:
-        max = value
-        
-    print(node, max)
-    return max
+        if value > max and player == 1:
+            max = value
+            index = n
+        else:
+            min = value
+    
+    if node == 'A':
+        return index
 
-print(dfs(graph1,'A', []))
+    if player == 1:
+        return max
+    else:
+        return min
+
+print('optimal move =', dfs(graph1,'A', 1))
