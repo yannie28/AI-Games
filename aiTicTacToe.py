@@ -78,8 +78,8 @@ def DrawMove(board):
 # the function draws the computer's move and updates the board
 #   
     while True:
-        move = str(randrange(1,10)) #picks a random number
-        #move = miniMax(board, avail, 3, 1) #current state of the board, initial depth, value of the computer
+        #move = str(randrange(1,10)) #picks a random number
+        move = miniMax(board, avail, 3, 1) #current state of the board, initial depth, value of the computer
         if move in avail:
             #change move to 'X'; update board
             board[boards[move][0]][boards[move][1]] = 'X'
@@ -87,42 +87,53 @@ def DrawMove(board):
     del avail[move]
     print("Computer placed an X in position " + move)
 
-def evalFunction(board, depth, player):
-    if VictoryFor(board, not player):
-        return -depth - 10
-    elif VictoryFor(board, player):
-        return 10 + depth
+def evalFunction(board, depth):
+    if VictoryFor(board, 0):
+        return depth+ 50
+    elif VictoryFor(board, 1):
+        return 100 + depth
     else:
         return 0
 
-# def miniMax(board, avail, depth, player):
+def miniMax(board, avail, depth, player):
+    sign = COMPUTER if player == 1 else HUMAN
+    maxValue = float('-inf')
+    minValue = float('inf')
+    index = ''
 
-#     if depth == 0 or not avail:
-#         return evalFunction(board, depth, player)
+    if VictoryFor(board, 0):
+        return -depth - 10
+    elif VictoryFor(board, 1):
+        return 10 + depth
 
-#     sign = COMPUTER if player == 1 else HUMAN
-#     maxValue = -1000
-#     minValue = 1000
-#     index = 0
-#     for x in avail:
-#         #generate possible move
-#         newboard = board[:] #board = [['1','2','3'], ['4','5','6'], ['7','8','9']]
-#         newavail = avail.copy()
-#         newboard[boards[x][0]][boards[x][1]] = sign
-#         del newavail[x] #delete the picked move in the newavail dictionary
+    if depth == 0 or not avail:
+        return evalFunction(board, depth)
 
-#         value = miniMax(newboard, newavail, depth-1, not player)
+    for x in avail:
+        #generate possible move
+        newboard = board[:] #board = [['1','2','3'], ['4','5','6'], ['7','8','9']]
+        print(newboard)
+        newavail = avail.copy()
+        print(newavail)
+        newboard[boards[x][0]][boards[x][1]] = sign
+        del newavail[x] #delete the picked move in the newavail dictionary
+        print(newavail)
+        value = miniMax(newboard, newavail, depth-1, not player)
 
-#         if player == 1:
-#             if value > maxValue: maxValue = value
-#             index = x
-#         else:
-#             if value < minValue: minValue = value
+        if value > maxValue and player == 1:
+            maxValue = value
+            index = x
+        else:
+            minValue = value
 
-#     if depth == 5:
-#         return index
+    if depth == 5:
+        return index
 
-        
+    if player == 1:
+        return maxValue
+    else:
+        return minValue
+
 def main():
     player = 0 #0 for human; 1 for computer
     victory = False
