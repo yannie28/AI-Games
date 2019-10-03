@@ -5,8 +5,10 @@ boards = {'1': (0,0), '2': (0,1), '3': (0,2),
           '4': (1,0), '5': (1,1), '6': (1,2),
           '7': (2,0), '8': (2,1), '9': (2,2)}
 
-board = [['1','2','3'], ['4','5','6'], ['7','8','9']]
-avail = boards.copy()
+#board = [['1','2','3'], ['4','5','6'], ['7','8','9']]
+board = [['X','O','X'], ['4','5','6'], ['O','X','O']]
+#avail = boards.copy()
+avail = {'4': (1,0), '5': (1,1), '6': (1,2)}
 COMPUTER = 'X'
 HUMAN = 'O'
 
@@ -27,15 +29,16 @@ def EnterMove(board):
 # checks the input and updates the board according to the user's decision
 #
     while True:
-        move = int(input("Enter your move: "))
-        if move < 10 and move > 0: #move = 1
-            if str(move) in avail:
-                #change move to 'O'; update board
-                board[boards[str(move)][0]][boards[str(move)][1]] = 'O'
-                break
-            else:
-                print("Position already taken. Please pick another number")
-        else:
+        try:
+            move = int(input("Enter your move: "))
+            if move < 10 and move > 0: #move = 1
+                if str(move) in avail:
+                    #change move to 'O'; update board
+                    board[boards[str(move)][0]][boards[str(move)][1]] = 'O'
+                    break
+                else:
+                    print("Position already taken. Please pick another number")
+        except:
             print("Invalid move")
 
     del avail[str(move)]
@@ -67,13 +70,16 @@ def VictoryFor(board, player):
 
     return victory
 
+def isFullBoard(board):
+    return False if avail else True
+
 def DrawMove(board):
 #
 # the function draws the computer's move and updates the board
 #   
     while True:
-        #move = str(randrange(1,10)) #picks a random number
-        move = miniMax()
+        move = str(randrange(1,10)) #picks a random number
+        #move = miniMax(board, avail, 3, 1) #current state of the board, initial depth, value of the computer
         if move in avail:
             #change move to 'X'; update board
             board[boards[move][0]][boards[move][1]] = 'X'
@@ -81,21 +87,52 @@ def DrawMove(board):
     del avail[move]
     print("Computer placed an X in position " + move)
 
-def miniMax():
-    move = ''
-    return move
+def evalFunction(board, depth, player):
+    if VictoryFor(board, not player):
+        return -depth - 10
+    elif VictoryFor(board, player):
+        return 10 + depth
+    else:
+        return 0
 
+# def miniMax(board, avail, depth, player):
+
+#     if depth == 0 or not avail:
+#         return evalFunction(board, depth, player)
+
+#     sign = COMPUTER if player == 1 else HUMAN
+#     maxValue = -1000
+#     minValue = 1000
+#     index = 0
+#     for x in avail:
+#         #generate possible move
+#         newboard = board[:] #board = [['1','2','3'], ['4','5','6'], ['7','8','9']]
+#         newavail = avail.copy()
+#         newboard[boards[x][0]][boards[x][1]] = sign
+#         del newavail[x] #delete the picked move in the newavail dictionary
+
+#         value = miniMax(newboard, newavail, depth-1, not player)
+
+#         if player == 1:
+#             if value > maxValue: maxValue = value
+#             index = x
+#         else:
+#             if value < minValue: minValue = value
+
+#     if depth == 5:
+#         return index
+
+        
 def main():
-    player = 0
+    player = 0 #0 for human; 1 for computer
     victory = False
     DisplayBoard(board)
-    while not victory and avail:
+    while not victory and not isFullBoard(board):
         if player == 0:
             EnterMove(board)
-            victory = VictoryFor(board, player)
         elif player == 1:
             DrawMove(board)
-            victory = VictoryFor(board, player)
+        victory = VictoryFor(board, player)
         DisplayBoard(board)
         player = not player
 
