@@ -1,3 +1,5 @@
+#Arianne Tan
+#implementatio of minimax algorithm
 graph1 = {
     'A' : ['B','C'],
     'B' : ['D','E'],
