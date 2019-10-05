@@ -7,8 +7,8 @@ boards = {'1': (0,0), '2': (0,1), '3': (0,2),
 
 board = [['1','2','3'], ['4','5','6'], ['7','8','9']]
 avail = boards.copy()
-COMPUTER = 'X'
-HUMAN = 'O'
+COMPUTER = '\u25cf'
+HUMAN = '\u25b2'
 
 def DisplayBoard(board):
 #
@@ -115,10 +115,10 @@ def DrawMove(board):
     
     if middle:
         move = middle
-    elif corners:
-        move = choice(corners)
-    else:
+    elif others:
         move = choice(others)
+    else:
+        move = choice(corners)
 
     board[boards[move][0]][boards[move][1]] = COMPUTER
     del avail[move]
