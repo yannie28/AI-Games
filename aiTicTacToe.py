@@ -83,7 +83,7 @@ def isFullBoard(board):
 #             board[boards[move][0]][boards[move][1]] = COMPUTER
 #             break
 #     del avail[move]
-#     print("Computer placed an X in position " + move)
+#     print("Computer placed an " + COMPUTER + " in position " + move)
 
 def DrawMove(board):
 #
@@ -101,7 +101,7 @@ def DrawMove(board):
             if VictoryFor(newBoard, player):
                 board[boards[x][0]][boards[x][1]] = COMPUTER
                 del avail[x]
-                print("Computer placed an X in position " + x)
+                print("Computer placed an " + COMPUTER + " in position " + move)
                 return
 
         newBoard[boards[x][0]][boards[x][1]] = x
@@ -122,7 +122,7 @@ def DrawMove(board):
 
     board[boards[move][0]][boards[move][1]] = COMPUTER
     del avail[move]
-    print("Computer placed an X in position " + move)
+    print("Computer placed an " + COMPUTER + " in position " + move)
 
 # def evalFunction(board, depth):
 #     if VictoryFor(board, 0):
@@ -175,6 +175,8 @@ def main():
     player = 0 #0 for human; 1 for computer
     victory = False
     DisplayBoard(board)
+    print("Human Player:", COMPUTER)
+    print("AI Player:", COMPUTER)
     while not victory and not isFullBoard(board):
         if player == 0:
             EnterMove(board)
@@ -185,7 +187,7 @@ def main():
         player = not player
 
     if victory and player == 0: #opposite since in the while cascade the player was changed before terminating the loop
-        print("The computer wins!")
+        print("The AI wins!")
     elif victory and player == 1:
         print("You win!")
     else:
