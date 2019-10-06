@@ -1,5 +1,8 @@
 #Arianne Tan
+#implementation of simple ai in tic tac toe
+
 from random import randrange, choice
+from copy import deepcopy
 
 boards = {'1': (0,0), '2': (0,1), '3': (0,2),
           '4': (1,0), '5': (1,1), '6': (1,2),
@@ -96,15 +99,15 @@ def DrawMove(board):
     for x in avail:
         for player in [1, 0]:
             sign = COMPUTER if player == 1 else HUMAN
-            newBoard = board[:]
+            newBoard = deepcopy(board)
             newBoard[boards[x][0]][boards[x][1]] = sign
             if VictoryFor(newBoard, player):
                 board[boards[x][0]][boards[x][1]] = COMPUTER
                 del avail[x]
-                print("Computer placed an " + COMPUTER + " in position " + move)
+                print("Computer placed an " + COMPUTER + " in position " + x)
                 return
 
-        newBoard[boards[x][0]][boards[x][1]] = x
+        #newBoard[boards[x][0]][boards[x][1]] = x
 
         if x == '5':
             middle = x
@@ -175,7 +178,7 @@ def main():
     player = 0 #0 for human; 1 for computer
     victory = False
     DisplayBoard(board)
-    print("Human Player:", COMPUTER)
+    print("Human Player:", HUMAN)
     print("AI Player:", COMPUTER)
     while not victory and not isFullBoard(board):
         if player == 0:
