@@ -1,7 +1,7 @@
 import sys
 import math
 import random
-import pygame
+import pygame as pyg
 import numpy as np
 
 #players
@@ -32,68 +32,61 @@ excess = COLUMN - WINNER #no of sub lists to be checked
 # 	board = np.zeros((ROW,COLUMN))
 # 	return board
 
-def createBoard(board):
+def createBoard(board): #create the gui board
 	for c in range(COLUMN):
 		for r in range(ROW):
-			pygame.draw.rect(screen, BLUE, (c*BOARDSIZE, BOARDSIZE*(r+1), BOARDSIZE, BOARDSIZE))
-			pygame.draw.circle(screen, PINK, (int(BOARDSIZE*(c+1/2)), int(BOARDSIZE*(r+1/2))), RADIUS)
+			pyg.draw.rect(screen, BLUE, (c*BOARDSIZE, BOARDSIZE*(r+1), BOARDSIZE, BOARDSIZE))
+			pyg.draw.circle(screen, PINK, (int(BOARDSIZE*(c+1/2)), int(BOARDSIZE*(r+1/2))), RADIUS)
 
-	pygame.display.update()
+	pyg.display.update()
 
-def drawMove(board):
-    for c in range(COLUMN):
-        for r in range(ROW):		
-            if board[r][c] == HUMAN_VAL:
-                pygame.draw.circle(screen, BLACK, (int(BOARDSIZE*(c+1/2)), height-int(BOARDSIZE*(r+1/2))), RADIUS)
-            elif board[r][c] == AI_VAL: 
-                pygame.draw.circle(screen, WHITE, (int(BOARDSIZE*(c+1/2)), height-int(BOARDSIZE*(r+1/2))), RADIUS)
+def drawMove(board, row, column, piece): #update the board by changing the color of the circle depending on the value of the board
+    if board[row][column] == HUMAN_VAL:
+        pyg.draw.circle(screen, BLACK, (int(BOARDSIZE*(column+1/2)), int(BOARDSIZE*(row+1/2))), RADIUS)
+    else:
+        pyg.draw.circle(screen, WHITE, (int(BOARDSIZE*(column+1/2)), int(BOARDSIZE*(row+1/2))), RADIUS)
 
-    pygame.display.update()
+    pyg.display.update()
 
-def isVictory(board, piece):
-
-    #check for vertical winner
-    for c in range(COLUMN):
+def isVictory(board, piece): #check if the player is already a winner
+    for c in range(COLUMN): #check for vertical winner
         end = WINNER
         for r in range(ROW-excess):
             if list(board[r:end, c]) == [piece for i in range(WINNER)]:
                 return True
             end+=1
 
-    #check for horizontal winner
-    for c in range(COLUMN-excess):
+    for c in range(COLUMN-excess): #check for horizontal winner
         end = WINNER
         for r in range(ROW):
             if list(board[r,c:end]) == [piece for i in range(WINNER)]:
                 return True
             end+=1
     
-    #check for positive diagonal winner
-    for c in range(COLUMN-3):
+    for c in range(COLUMN-3): #check for positive diagonal winner
         for r in range(3, ROW):
-            if board[r][c] == piece and board[r-1][c+1] == piece and board[r-2][c+2] == piece and board[r-3][c+3] == piece:
+            if board[r][c] == board[r-1][c+1] == board[r-2][c+2] == board[r-3][c+3] == piece:
                 return True
     
-    #check for negative diagonal winner
-    for c in range(COLUMN-3):
+    for c in range(COLUMN-3): #check for negative diagonal winner
         for r in range(ROW-3):
             if board[r][c] == board[r+1][c+1] == board[r+2][c+2] == board[r+3][c+3] == piece:
                 return True
 
-def getAboveRow(board, column):
+def getAboveRow(board, column): #return a row given an available column
 	for r in range(ROW):
 		if board[r][column] == EMPTY:
 			return r
 
-def isValidLocation(board, column):
+def isValidLocation(board, column): #check if the column is available
 	return board[ROW-1][column] == EMPTY
 
-def getValidLocation(board):
+def getValidColumns(board): #return a list of available columns
 	valid = []
 	for c in range(COLUMN):
 		if isValidLocation(board, c):
 			valid.append(c)
 	return valid
 
-def movePiece(board, row, column, piece):
+def placePiece(board, row, column, piece): #update board
 	board[row][column] = piece
