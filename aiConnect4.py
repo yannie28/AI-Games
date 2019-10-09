@@ -28,23 +28,20 @@ AI_PIECE = (0,0,0) #white
 size = (COLUMN * BOARDSIZE, (ROW+1) * BOARDSIZE) #width, height
 screen = pyg.display.set_mode(size)
 
-
 WINNER = 4 #winner connects 4 dots
 excess = COLUMN - WINNER #no of sub lists to be checked
 
-def createBoard():
-	board = np.zeros((ROW,COLUMN))
-	return board
-
 def drawBoard(board): #draw the gui board
-	for c in range(COLUMN):
-		for r in range(ROW):
-			pyg.draw.rect(screen, BLUE, (c*BOARDSIZE, BOARDSIZE*(r+1), BOARDSIZE, BOARDSIZE))
-			pyg.draw.circle(screen, PINK, (int(BOARDSIZE*(c+1/2)), int(BOARDSIZE*(r+1/2+1))), RADIUS)
+    pyg.draw.rect(screen, PINK, (0,0, COLUMN * BOARDSIZE, BOARDSIZE))
 
-	pyg.display.update()
+    for c in range(COLUMN):
+        for r in range(ROW):
+            pyg.draw.rect(screen, BLUE, (c*BOARDSIZE, BOARDSIZE*(r+1), BOARDSIZE, BOARDSIZE))
+            pyg.draw.circle(screen, PINK, (int(BOARDSIZE*(c+1/2)), int(BOARDSIZE*(r+1/2+1))), RADIUS)
 
-def drawMove(board, column, row, piece): #update the board by changing the color of the circle depending on the value of the board
+    pyg.display.update()
+
+def drawMove(board, row, column, piece): #update the board by changing the color of the circle depending on the value of the board
     if board[row][column] == HUMAN_VAL:
         pyg.draw.circle(screen, HUMAN_PIECE, (int(BOARDSIZE*(column+1/2)), (ROW+1) * BOARDSIZE-int(BOARDSIZE*(row+1/2))), RADIUS)
     elif board[row][column] == AI_VAL:
@@ -60,12 +57,12 @@ def isVictory(board, piece): #check if the player is already a winner
                 return True
             end+=1
 
+    end = WINNER
     for c in range(COLUMN-excess): #check for horizontal winner
-        end = WINNER
         for r in range(ROW):
             if list(board[r,c:end]) == [piece for i in range(WINNER)]:
                 return True
-            end+=1
+        end+=1
 
     for c in range(COLUMN-3): #check for positive diagonal winner
         for r in range(ROW-3):
@@ -94,6 +91,33 @@ def getValidColumns(board): #return a list of available columns
 
 def placePiece(board, row, column, piece): #update board
 	board[row][column] = piece
+
+def getHumanMove(board): #get human move
+    for event in pyg.event.get():
+        if event.type == pyg.QUIT:
+            sys.exit(0)
+        elif event.type == pyg.MOUSEMOTION:
+            pyg.draw.rect(screen, PINK, (0,0, COLUMN * BOARDSIZE, BOARDSIZE))
+            pyg.draw.circle(screen, HUMAN_PIECE, (event.pos[0], int(BOARDSIZE/2)), RADIUS)
+
+        pyg.display.update()
+
+        if event.type == pyg.MOUSEBUTTONDOWN:
+            pyg.draw.rect(screen, PINK, (0,0, COLUMN * BOARDSIZE, BOARDSIZE))
+            col = int(math.floor(event.pos[0]/BOARDSIZE))
+            if isValidLocation(board, col):
+                row = getAboveRow(board, col)
+                placePiece(board, row, col, HUMAN_VAL)
+                drawMove(board, row, col, HUMAN_VAL)
+
+                return True
+
+def getAIMove(board): #get ai move
+    col = minimax(board, 5, -math.inf, math.inf, True)[0]
+
+    row = getAboveRow(board, col)
+    placePiece(board, row, col, AI_VAL)
+    drawMove(board, row, col, AI_VAL)
 
 def evaluate_window(window, piece):
 	score = 0
@@ -164,6 +188,7 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
 				return (None, 0)
 		else: # Depth is zero
 			return (None, score_position(board, AI_VAL))
+
 	if maximizingPlayer:
 		value = -math.inf
 		column = random.choice(valid_locations)
@@ -196,68 +221,40 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
 				break
 		return column, value
 
+
 def main():
-	board = createBoard()
-	pyg.init()
+    board = np.zeros((ROW,COLUMN))
+    pyg.init()
 
-	drawBoard(board)
-	pyg.display.update()
+    drawBoard(board)
+    pyg.display.update()
 
-	fontStyle = pyg.font.SysFont("arial", BOARDSIZE-30)
-	victory = False
-	player = HUMAN
+    fontStyle = pyg.font.SysFont("arial", BOARDSIZE-40)
+    victory = False
+    player = HUMAN
 
-	while not victory:
-		for event in pyg.event.get():
-			if event.type == pyg.QUIT:
-				sys.exit(0)
-			elif event.type == pyg.MOUSEMOTION:
-				pyg.draw.rect(screen, PINK, (0,0, COLUMN * BOARDSIZE, BOARDSIZE))
-				posX = event.pos[0]
-				pyg.draw.circle(screen, HUMAN_PIECE, (posX, int(BOARDSIZE/2)), RADIUS)
+    while not victory:
+        if player == HUMAN:
+            getHumanMove(board)
+            if isVictory(board, HUMAN_VAL):
+                text = fontStyle.render('Finally! You win!', True, RED)
+                text_rect = text.get_rect(center=((COLUMN * BOARDSIZE)/2, BOARDSIZE/2))
+                screen.blit(text, text_rect)
+                victory = True
+            pyg.display.update()
+            player = AI
 
-			pyg.display.update()
+        elif player == AI and getHumanMove(board):				
+            getAIMove(board)
+            if isVictory(board, AI_VAL):
+                text = fontStyle.render('Computer wins!', True, RED)
+                text_rect = text.get_rect(center=((COLUMN * BOARDSIZE)/2, BOARDSIZE/2))
+                screen.blit(text, text_rect)
+                victory = True
+            pyg.display.update()
+            player = HUMAN
 
-			if event.type == pyg.MOUSEBUTTONDOWN:
-				pyg.draw.rect(screen, PINK, (0,0, COLUMN * BOARDSIZE, BOARDSIZE))
-
-				posX = event.pos[0]
-				col = int(math.floor(posX/BOARDSIZE))
-
-				if isValidLocation(board, col):
-					row = getAboveRow(board, col)
-					placePiece(board, row, col, HUMAN_VAL)
-
-					if isVictory(board, HUMAN_VAL):
-						label = fontStyle.render("You win!", 1, RED)
-						screen.blit(label, (40,10))
-						victory = True
-
-					player += 1
-					player = player % 2
-
-					drawMove(board, col, row, HUMAN_VAL)
-
-		if player == AI and not victory:				
-
-			col, minimax_score = minimax(board, 5, -math.inf, math.inf, True)
-
-			if isValidLocation(board, col):
-			#pygame.time.wait(500)
-				row = getAboveRow(board, col)
-				placePiece(board, row, col, AI_VAL)
-
-				if isVictory(board, AI_VAL):
-					label = fontStyle.render("Computer wins!", 1, RED)
-					screen.blit(label, (40,10))
-					victory = True
-
-				drawMove(board, col, row, AI_VAL)
-
-				player += 1
-				player = player % 2
-
-		if victory:
-			pyg.time.wait(3000)
+        if victory:
+            pyg.time.wait(5000)
 
 main()
