@@ -50,7 +50,7 @@ def drawMove(board, row, column, piece): #update the board by changing the color
 
     pyg.display.update()
 
-def getWinningMove(winningMove):
+def getWinningMove(winningMove): #draw a colored outline in the winning move
     i = 0
     while i < 4:
         pyg.time.wait(300)
@@ -79,7 +79,7 @@ def isVictory(board, piece): #check if the player is already a winner
             if board[r][c] == board[r-1][c+1] == board[r-2][c+2] == board[r-3][c+3] == piece:
                 return [(r,c),(r-1,c+1),(r-2,c+2),(r-3,c+3)]
 
-def getWinningMessage(message):
+def getWinningMessage(message): #display the winning message if isVictory() is True
     fontStyle = pyg.font.SysFont("arial", BOARDSIZE-40)
     text = fontStyle.render(message, True, TEXT)
     text_rect = text.get_rect(center=((COLUMN * BOARDSIZE)/2, BOARDSIZE/2))
@@ -121,7 +121,7 @@ def getAIMove(board): #get ai move
 		placePiece(board, row, col, AI_VAL)
 		drawMove(board, row, col, AI_VAL)
 
-def countScore(subPart, piece):
+def countScore(subPart, piece): #count the number of pieces in a given sub part of the board
 	score = 0
 	oppPiece = HUMAN_VAL
 	if piece == HUMAN_VAL:
@@ -141,7 +141,7 @@ def countScore(subPart, piece):
 
 	return score
 
-def score_position(board, piece):
+def evalFunction(board, piece):
 	score = 0
 
 	center_array = [int(i) for i in list(board[:, COLUMN//2])] #center column
@@ -180,7 +180,7 @@ def alphabetaPruning(board, depth, alpha, beta, maximizingPlayer):
 	elif isVictory(board, HUMAN_VAL):
 		return (None, -100)
 	elif depth == 0:
-		return (None, score_position(board, AI_VAL))
+		return (None, evalFunction(board, AI_VAL))
 	elif len(getValidColumns(board)) == 0:
 		return (None, 0)
 
@@ -200,7 +200,7 @@ def alphabetaPruning(board, depth, alpha, beta, maximizingPlayer):
 				break
 		return column, value
 
-	else: # Minimizing player
+	else: #Minimizing player
 		value = float('inf')
 		column = ''
 		for col in valid_locations:
