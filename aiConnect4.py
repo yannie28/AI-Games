@@ -115,7 +115,7 @@ def getHumanMove(board, move): #get human move
 		drawMove(board, row, col, HUMAN_VAL)
 
 def getAIMove(board): #get ai move
-	col = minimax(board, 5, float('-inf'), float('inf'), True)[0]
+	col = alphabetaPruning(board, 5, float('-inf'), float('inf'), True)[0]
 
 	if isValidLocation(board,col):
 		row = getAboveRow(board, col)
@@ -173,7 +173,7 @@ def score_position(board, piece):
 
 	return score
 
-def minimax(board, depth, alpha, beta, maximizingPlayer):
+def alphabetaPruning(board, depth, alpha, beta, maximizingPlayer):
 	valid_locations = getValidColumns(board)
 
 	if isVictory(board, AI_VAL):
@@ -192,7 +192,7 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
 			row = getAboveRow(board, col)
 			newBoard = board.copy()
 			placePiece(newBoard, row, col, AI_VAL)
-			new_score = minimax(newBoard, depth-1, alpha, beta, False)[1]
+			new_score = alphabetaPruning(newBoard, depth-1, alpha, beta, False)[1]
 			if new_score > value:
 				value = new_score
 				column = col
@@ -208,7 +208,7 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
 			row = getAboveRow(board, col)
 			newBoard = board.copy()
 			placePiece(newBoard, row, col, HUMAN_VAL)
-			new_score = minimax(newBoard, depth-1, alpha, beta, True)[1]
+			new_score = alphabetaPruning(newBoard, depth-1, alpha, beta, True)[1]
 			if new_score < value:
 				value = new_score
 				column = col
