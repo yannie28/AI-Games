@@ -226,7 +226,6 @@ def main():
 
 	victory = False
 	player = HUMAN
-	i = 0
 	while not victory:
 		for event in pyg.event.get():
 			if event.type == pyg.QUIT:
